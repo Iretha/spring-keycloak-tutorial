@@ -1,17 +1,15 @@
 # spring-keycloak-tutorial
-Spring Frontend &amp; Keycloak as Authentication Server
-
-### Spring Frontend & Keycloak Authentication Server
+How to setup Spring Frontend & Keycloak Authentication Server.
 
 ## Frontend Application (Spring Boot)
 We are going to use a simple Spring Boot aplication as our frontend. You may go to [Spring Initailizr](https://start.spring.io/) and let spring generate a project for you or do it by yourself. You may also get the source code from [github](https://github.com/Iretha/spring-keycloak-tutorial).
 
 1. Project Settings
--Gradle (5.4.1) - you may use Maven
--Java 8
--Spring Boot 2.2.0 (SNAPSHOT)
--Packaging: War
--Dependencies: Web, Devtools
+- Gradle (5.4.1) - you may use Maven
+- Java 8
+- Spring Boot 2.2.0 (SNAPSHOT)
+- Packaging: War
+- Dependencies: Web, Devtools
 1. Open the project with your favourite IDE
 1. Add "tomcat-embed-jasper" as dependency
 ```Gradle
@@ -75,7 +73,6 @@ public class HomeController {
 @EnableWebMvc
 @ComponentScan
 public class MvcConfiguration implements WebMvcConfigurer {
-    
     /**
      * Configure Views & View Resolver
      * @param registry
@@ -91,8 +88,11 @@ public class MvcConfiguration implements WebMvcConfigurer {
 ```
 1. Let's run the project and check how it goes.
 Go to [http://localhost:8080/home](http://localhost:8080/home)
+
 What we expect to see is: Hello, Guest!
+
 Another option to add your name [http://localhost:8080/home?name=John](http://localhost:8080/home?name=John)
+
 What we expect to see is: Hello, John!
 
 Now our sample project is up and running!
