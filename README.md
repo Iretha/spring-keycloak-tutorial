@@ -103,7 +103,7 @@ We are going to use a simple Spring Boot application as our frontend (demo-web-a
 * Dependencies: Web, Devtools
 * Name: demo-web-app
 
-### Create Project
+### Create The Project
 You may use [Spring Initailizr](https://start.spring.io/) and let spring generate a project for you or do it by yourself. 
 You may also get the source code from [github](https://github.com/Iretha/spring-keycloak-tutorial).
 
@@ -187,7 +187,7 @@ public class Application extends SpringBootServletInitializer {
 
 We will place our JSP-s under "webapp->WEB-INF->views".
 
-![](https://github.com/Iretha/spring-keycloak-tutorial/blob/master/images/project_structure.png==250x)
+![](https://github.com/Iretha/spring-keycloak-tutorial/blob/master/images/project_structure.png=250x)
 
 ### Create MvcConfiguration.java
 
