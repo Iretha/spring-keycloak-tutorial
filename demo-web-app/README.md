@@ -346,10 +346,7 @@ public class SecConfiguration extends KeycloakWebSecurityConfigurerAdapter {
 
 Go to HomeController and uncomment the code, in order to get the username.
 
-### Run your app
-
-If you run your app now and if you try to access the home page, you will be redirected to Keycloak login page.
-Login with "devuser" (the one we created earlier). Now you should see "Hello, devuser!".
+### Let's test our app
 
 #### !!! Create a SSH Tunnel if needed !!!
 If your Keycloak instance is installed on a different machine (not the one where Spring app will run), 
@@ -368,6 +365,18 @@ $ ssh dev@192.168.1.122 -L 8180:127.0.0.1:81800
 * Windows
 You may use PuTTY or similar. 
 There are many tutorials you can follow i.e. [this one](https://www.skyverge.com/blog/how-to-set-up-an-ssh-tunnel-with-putty/)
+
+#### Make sure if the keycloak instance is running
+
+Go to <http://localhost:8180/auth/admin> and verify if it's up and accessible.
+
+#### Run you app
+
+Go to <http://localhost:8080/home> and login with "devuser".
+
+If you run your app now and if you try to access the home page, you will be redirected to Keycloak login page.
+Login with "devuser" (the one we created earlier). Now you should see "Hello, devuser!".
+
 
 ### Add Logout Action
 
