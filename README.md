@@ -1,21 +1,29 @@
-# How to secure Spring Boot Frontend with Keycloak and Spring Security (Login (Username/Password + Social) & Logout)
+# How to secure Spring Boot Frontend with Keycloak and Spring Security
 
-This tutorial will show you how to secure a simple Spring Boot project using Keycloak. 
-We will implement login and logout actions, so that you can perform the full login-logout cycle. 
-In order to achieve this, we need a spring boot web application (our demo-web-app) and a keycloak installation.
+With this tutorial I will show you how to secure a simple Spring Boot application using Keycloak. 
+
+We are going to implement simple login (with username and password) and logout. 
+Later we will extend it with a social login (google/ facebook/ github etc).
+
+In order to achieve this, we need to "Install & Setup our Keycloak Instance" and "Create and Setup a *demo-web-app* using Spring Boot".
 
 The source code is available on [GitHub](https://github.com/Iretha/spring-keycloak-tutorial).
 
 ## Keycloak Installation & Setup
 
-Please, follow the steps from the official [Getting Started](https://www.keycloak.org/docs/latest/getting_started/index.html) guide, in order to install it..
+### Installation
 
-##### Set Port Offset & Start the Server
+The initial installation & setup is not a subject of this guide, although you can find some guidelines below. 
+To install it, please follow the official [Getting Started](https://www.keycloak.org/docs/latest/getting_started/index.html) 
+guide and then come back to do what's needed to secure our web application. 
 
-For the purpose of this project, I use the standalone option with port offset = 100. 
-Otherwise keycloak server will run on it's default port 8080, where my Tomcat is located.
+## Setup
 
-To change the port, start the server with an argument "Djboss.socket.binding.port-offset=<PORT_OFFSET>".
+### Set Port Offset & Boot the Keycloak Instance
+I will use the standalone mode with port offset = 100. 
+Otherwise Keycloak will run on it's default port 8080, where actually my Tomcat instance runs.
+
+To change the port, start Keycloak with an additional argument "Djboss.socket.binding.port-offset=<PORT_OFFSET>".
 * Linux
 ```bash
 $ cd bin
@@ -26,7 +34,17 @@ $ ./standalone.sh -Djboss.socket.binding.port-offset=100
 ...\bin\standalone.bat -Djboss.socket.binding.port-offset=100
 ```
 
-##### Create the Admin Account
+You can set the port offset permanently if you edit "standalone.xml". 
+Find "jboss.socket.binding.port-offset" and change the offset:
+```xml
+port-offset="${jboss.socket.binding.port-offset:100}"
+```
+
+For more information, visit [the official guide](https://www.keycloak.org/docs/2.5/server_installation/topics/network/ports.html).
+
+### Create the Admin Account
+
+If your Keycloak instance is running, you can create an admin account.
 
 By default the admin console is published on [http://localhost:8080/auth](http://localhost:8080/auth).
 Don't forget to change the port, if you have a port offset. 
@@ -34,25 +52,25 @@ In my case, the admin console is available on [http://localhost:8180/auth](http:
 
 Follow the [Official Guide](https://www.keycloak.org/docs/latest/getting_started/index.html#creating-the-admin-account)
 
-##### Logging in to the Admin Console
+### Logging in to the Admin Console
 
 Go to [http://localhost:8180/auth/admin](http://localhost:8180/auth/admin) and verify our admin account.
 
 Follow the [Official Guide](https://www.keycloak.org/docs/latest/getting_started/index.html#logging-in-to-the-admin-console)
 
-##### Create "dev" Realm 
+### Create "dev" Realm 
 
 For the purpose of this project, I'm going to create a new realm, called "dev".
 
 Follow the [Official Guide](https://www.keycloak.org/docs/latest/getting_started/index.html#_create-realm)
 
-##### "Dev" Realm: Create "user" Role
+### "Dev" Realm: Create "user" Role
 
 For the purpose of this project, I'm going to create a new role, called "user".
 
 Go to "Role", click "Add Role" and enter "user" as a role name.
 
-##### "Dev" Realm: Create User 
+### "Dev" Realm: Create User 
 
 For the purpose of this project, I'm going to create a new user, called "devuser".
 
@@ -62,7 +80,7 @@ For the purpose of this project, I'm going to create a new user, called "devuser
 
 Follow the [Official Guide](https://www.keycloak.org/docs/latest/getting_started/index.html#_create-new-user)
 
-##### "Dev" Realm: Register "web-app-client" Client
+### "Dev" Realm: Register "web-app-client" Client
 
 Create a new client called "web-app-client". This is the client, we are going to use for our web app.
 * Go to "Clients" and press "Create". Enter "web-app-client" as client id, click "Save".
@@ -73,8 +91,10 @@ My demo-web-app app will be published on "http://localhost:8080"
 
 Follow the [official guide](https://www.keycloak.org/docs/latest/getting_started/index.html#creating-and-registering-the-client)
 
+---
+Now we are ready to proceed with the spring web app.
+---
 
-Now we are ready to proceed with the spring app.
 
 ## Our Frontend Application (demo-web-app)
 We are going to use a simple Spring Boot application as our frontend (demo-web-app). 
