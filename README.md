@@ -62,10 +62,10 @@ For the purpose of this project, I'm going to create a new user, called "devuser
 
 Follow the [Official Guide](https://www.keycloak.org/docs/latest/getting_started/index.html#_create-new-user)
 
-##### "Dev" Realm: Register "demo-web-app" Client
+##### "Dev" Realm: Register "web-app-client" Client
 
-Create a new client called "demo-web-app". This is the client, we are going to use for our web app.
-* Go to "Clients" and press "Create". Enter "demo-web-app" as client id, click "Save".
+Create a new client called "web-app-client". This is the client, we are going to use for our web app.
+* Go to "Clients" and press "Create". Enter "web-app-client" as client id, click "Save".
 * Enter "Valid Redirect URIs" (in my case it is http://localhost:8080/*) and press "Save"
 
 This is the location of your demo-web-app, which we are going to create as a second step.
