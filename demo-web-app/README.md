@@ -351,6 +351,24 @@ Go to HomeController and uncomment the code, in order to get the username.
 If you run your app now and if you try to access the home page, you will be redirected to Keycloak login page.
 Login with "devuser" (the one we created earlier). Now you should see "Hello, devuser!".
 
+#### !!! Create a SSH Tunnel if needed !!!
+If your Keycloak instance is installed on a different machine (not the one where Spring app will run), 
+you should create a ssh tunnel between both.
+
+Go to the machine, where Spring app will run and make a tunnel the the machine, where keycloak runs.
+
+* Linux
+```bash
+$ ssh <user>@<KEYCLOAK_HOST_IP> -L 8180:127.0.0.1:8180
+$ Confirm with your <user_password>
+```
+i.e.
+$ ssh dev@192.168.1.122 -L 8180:127.0.0.1:81800
+
+* Windows
+You may use PuTTY or similar. 
+There are many tutorials you can follow i.e. [this one](https://www.skyverge.com/blog/how-to-set-up-an-ssh-tunnel-with-putty/)
+
 ### Add Logout Action
 
 In our home.jsp we have an action "action="/logout-from-keycloak", which will trigger our KeycloakController.
@@ -475,24 +493,6 @@ Uncomment the logout action.
 </body>
 </html>
 ```
-
-#### !!! Create a SSH Tunnel if needed !!!
-If your Keycloak instance is installed on a different machine (not the one where Spring app will run), 
-you should create a ssh tunnel between both.
-
-Go to the machine, where Spring app will run and make a tunnel the the machine, where keycloak runs.
-
-* Linux
-```bash
-$ ssh <user>@<KEYCLOAK_HOST_IP> -L 8180:127.0.0.1:8180
-$ Confirm with your <user_password>
-```
-i.e.
-$ ssh dev@192.168.1.122 -L 8180:127.0.0.1:81800
-
-* Windows
-You may use PuTTY or similar. 
-There are many tutorials you can follow i.e. [this one](https://www.skyverge.com/blog/how-to-set-up-an-ssh-tunnel-with-putty/)
 
 #### Restart the app
 
