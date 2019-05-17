@@ -1,4 +1,7 @@
-# Spring Boot & Keycloak Tutorials
+# How to secure Spring Boot Frontend with Keycloak and Spring Security
+
+We need to setup a Keycloak instance first and then we are going to create a sample spring boot web app, 
+which will use the keycloak as identity and access management solution.
 
 ## Keycloak Installation & Setup
 
