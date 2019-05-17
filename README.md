@@ -92,6 +92,24 @@ My demo-web-app app will be published on "http://localhost:8080"
 
 Follow the [official guide](https://www.keycloak.org/docs/latest/getting_started/index.html#creating-and-registering-the-client)
 
+### !!! SSH Tunnel May be needed !!!
+If your Keycloak instance is installed on a different machine (not the one where Spring app will run), 
+you should create a ssh tunnel between both.
+
+Go to the machine, where Spring app will run and make a tunnel the the machine, where keycloak runs.
+
+* Linux
+```bash
+$ ssh <user>@<KEYCLOAK_HOST_IP> -L 8180:127.0.0.1:8180
+$ Confirm with your <user_password>
+```
+i.e.
+$ ssh dev@192.168.1.122 -L 8180:127.0.0.1:81800
+
+* Windows
+You may use PuTTY or similar. 
+There are many tutorials you can follow i.e. [this one](https://www.skyverge.com/blog/how-to-set-up-an-ssh-tunnel-with-putty/)
+
 ## Our Spring Web Application (demo-web-app)
 We are going to use a simple Spring Boot application as our frontend (demo-web-app). 
 
@@ -235,9 +253,9 @@ home.jsp
 <body>
 <h2 style="color: darkcyan;">Hello, ${name}!</h2>
 
-<form method="post" action="/logout-from-keycloak">
-    <input type="submit" value="Logout"/>
-</form>
+<%--<form method="post" action="/logout-from-keycloak">--%>
+<%--    <input type="submit" value="Logout"/>--%>
+<%--</form>--%>
 
 <%--<script src="/static/js/user.js"></script>--%>
 </body>
@@ -300,3 +318,250 @@ Go to [http://localhost:8080/home](http://localhost:8080/home)
 What we expect to see is: Hello, Guest!
 
 Now our sample project is up and running!
+
+
+## Enable Security (Login with Username & Password)
+
+If your app is up and running, we may enable the security in order to protect our web app.
+
+### Add Gradle Dependencies
+
+#### Add "spring-boot-starter-security" and "keycloak-spring-boot-starter" dependencies
+
+Go to build.gradle and add:
+```gradle
+dependencies {
+    // ... omitted for easier reading
+    
+	// Spring Boot Security
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.1.4.RELEASE'
+	// Keycloak
+	implementation 'org.keycloak:keycloak-spring-boot-starter'
+}
+```
+
+#### Spring Boot Adapter (keycloak-adapter-bom)
+
+To be able to secure Spring Boot apps you must add the Keycloak Spring Boot adapter JAR to your app. 
+You then have to provide some extra configuration via normal Spring Boot configuration (application.properties)
+
+```gradle
+dependencyManagement {
+	imports {
+		mavenBom "org.keycloak.bom:keycloak-adapter-bom:6.0.1"
+	}
+}
+```
+
+For more information, please visit [Spring Boot Adapter](https://www.keycloak.org/docs/3.2/securing_apps/topics/oidc/java/spring-boot-adapter.html).
+
+### Keycloak Client Setup
+
+As our app acts as Keycloak client, we need to setup "our client".
+
+Go to application.properties and add:
+
+```properties
+# Keycloak Settings
+# The location of the Keycloak Instance
+keycloak.auth-server-url=http://localhost:8180/auth
+# Our Realm
+keycloak.realm=dev
+# Our Client Id
+keycloak.resource=web-app-client
+keycloak.public-client=true
+keycloak.principal-attribute=preferred_username
+
+```
+
+### Add SecurityConfiguration (SecConfiguration.java)
+
+This will enable Spring Security and will define rules for our protected paths.
+
+The most important part is to override configure() method and to add our security rules.
+What we did is to say that all paths are protected and are available only to users with role "user".
+Do you remember that we have created this role earlier? Well, this is the same role.
+
+```
+        http.csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/*")
+                .hasRole("user")
+                .anyRequest()
+                .permitAll();
+```
+
+SecConfiguration.java
+```java
+@Configuration
+@EnableWebSecurity
+@ComponentScan(
+        basePackageClasses = KeycloakSecurityComponents.class,
+        excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "org.keycloak.adapters.springsecurity.management.HttpSessionManager")
+)
+public class SecConfiguration extends KeycloakWebSecurityConfigurerAdapter {
+
+    @Autowired
+    public void configureGlobal(
+            AuthenticationManagerBuilder auth) throws Exception {
+
+        KeycloakAuthenticationProvider keycloakAuthenticationProvider
+                = keycloakAuthenticationProvider();
+        keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(
+                new SimpleAuthorityMapper());
+        auth.authenticationProvider(keycloakAuthenticationProvider);
+    }
+
+    @Bean
+    public KeycloakSpringBootConfigResolver KeycloakConfigResolver() {
+        return new KeycloakSpringBootConfigResolver();
+    }
+
+    @Bean
+    @Override
+    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+        return new RegisterSessionAuthenticationStrategy(
+                new SessionRegistryImpl());
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        super.configure(http);
+
+        http.csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/*")
+                .hasRole("user")
+                .anyRequest()
+                .permitAll();
+    }
+}
+```
+
+### Get the username
+
+Go to HomeController and uncomment the code, in order to get the username.
+
+### Run your app
+
+If you run your app now and if you try to access the home page, you will be redirected to Keycloak login page.
+Login with "devuser" (the one we created earlier). Now you should see "Hello, devuser!".
+
+### Add Logout Action
+
+#### Create & Register a LogoutServlet
+
+* Create the Servlet
+
+The idea of this servlet is to do a request logout (session will be invalidated and etc.) 
+and then to navigate to a secured path ("/home"), so that you will be basically redirected back to the login page.
+
+This means that you you log out, you will be redirected to login, in order to login again.
+
+```java
+/**
+ * Handles Logout-s from the Frontend App (clears session data, cookies etc.)
+ */
+@WebServlet(value = "/logout", loadOnStartup = 1)
+public class LogoutServlet extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doPost(req, resp);
+    }
+
+    /**
+     * Logout the request and then navigate to any secured page, so that the login screen will appear
+     *
+     * @param request
+     * @param response
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.logout();
+        response.sendRedirect(request.getContextPath() + "/home");
+    }
+}
+```
+
+* Register the Servlet
+
+Go to your SpringBootApplication and add:
+
+```
+	@Bean
+	public ServletRegistrationBean logoutServlet() {
+		ServletRegistrationBean<HttpServlet> regBean = new ServletRegistrationBean<>();
+		regBean.setServlet(new LogoutServlet());
+		regBean.addUrlMappings("/logout");
+		regBean.setLoadOnStartup(1);
+		return regBean;
+	}
+```
+
+#### Define the Keycloak Logout URL
+
+To logout from Keycloak, you should redirect to a specific URL and pass as parameter the page 
+where the user should be redirected after the logout action. 
+
+application.properties
+```properties
+logout-url=http://localhost:8180/auth/realms/dev/protocol/openid-connect/logout?redirect_uri=http://localhost:8080/logout
+```
+
+In our case, the user should be redirected to "http://localhost:8080/logout" (this is actually our LogoutServlet). 
+So, you need first to log out from Keycloak and then logout from web app to "forget" or "invalidate" the current session and to init a new one.
+Otherwise our app will still "think" that the user is logged in, until the token expires. What we will do is to force it.
+
+
+#### Create /controller/KeycloakController.java
+
+The purpose of the Controller is to invoke the logout from Keycloak.
+
+KeycloakController.java
+```java
+@Controller
+public class KeycloakController {
+
+    @Value("${logout-url}")
+    private String SERVER_LOGOUT_URL;
+
+    @RequestMapping("/logout-from-keycloak")
+    public RedirectView logoutFromKeycloak() {
+        RedirectView redirectView = new RedirectView();
+        redirectView.setUrl(SERVER_LOGOUT_URL);
+        return redirectView;
+    }
+}
+```
+
+#### Enable the logout button in our home.jsp
+
+Uncomment the logout action.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello, ${name}!</title>
+<%--    <link href="/static/css/style.css" rel="stylesheet">--%>
+</head>
+<body>
+<h2 style="color: darkcyan;">Hello, ${name}!</h2>
+
+<form method="post" action="/logout-from-keycloak">
+    <input type="submit" value="Logout"/>
+</form>
+
+<%--<script src="/static/js/user.js"></script>--%>
+</body>
+</html>
+```
+
+#### !!! Create a tunnel if needed
+
+#### Restart the app
+
+#### Go to [http://localhost:8080/home](http://localhost:8080/home) and verify if it's working
+
