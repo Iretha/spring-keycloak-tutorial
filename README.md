@@ -112,7 +112,7 @@ Use your favourite IDE.
 
 ### Setup the embedded Tomcat
 
-* Add 'tomcat-embed-jasper' dependency
+#### Add 'tomcat-embed-jasper' dependency
 
 At this point I'm going to add "providedRuntime group: 'org.apache.tomcat.embed', name: 'tomcat-embed-jasper'".
 
@@ -144,7 +144,7 @@ dependencies {
 }
 ```
 
-* Update the Application Config
+#### Disable Manifest Scanning
 
 Open your SpringBootApplication and extend SpringBootServletInitializer. 
 Then override tomcatFactory() in order to disable the Manifest Scanning of the jars.
@@ -182,12 +182,11 @@ public class Application extends SpringBootServletInitializer {
 }
 ```
 
-
 ### Create the folder structure "webapp-> WEB-INF-> views"
 
 We will place our JSP-s under "webapp->WEB-INF->views".
 
-![](https://github.com/Iretha/spring-keycloak-tutorial/blob/master/images/project_structure.png=250x)
+![](https://github.com/Iretha/spring-keycloak-tutorial/blob/master/images/project_structure.png)
 
 ### Create MvcConfiguration.java
 
