@@ -108,7 +108,7 @@ public class Application extends SpringBootServletInitializer {
 
 We will place our JSP-s under "webapp->WEB-INF->views".
 
-![](https://github.com/Iretha/spring-keycloak-tutorial/blob/master/images/project_structure.png)
+![](https://github.com/Iretha/spring-keycloak-tutorial/blob/master/demo-web-app/images/project_structure.png)
 
 ### Create MvcConfiguration.java
 
