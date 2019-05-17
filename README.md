@@ -449,6 +449,18 @@ Login with "devuser" (the one we created earlier). Now you should see "Hello, de
 
 ### Add Logout Action
 
+In our home.jsp we have an action "action="/logout-from-keycloak", which will trigger our KeycloakController.
+The KeycloakController will invoke Keycloak logout action. 
+What does the controller to do the logout is to redirect to Keycloak logout endpoint with a redirect uri. In our case this is
+"http://localhost:8180/auth/realms/dev/protocol/openid-connect/logout?redirect_uri=http://localhost:8080/logout".
+When the user is successfully logged out from Keycloak, Keycloak will redirect us back to "http://localhost:8080/logout".
+This will trigger our LogoutServlet. The LogoutServlet will invoke "request.logout()" to invalidate the current session 
+and then will redirect the user to some protected path, such as "/home". 
+At this moment, the Spring Security will trigger and will apply the security rules. 
+Since the user is not logged in and "/home" is a protected path, we will be navigated back to the login page.
+
+This is basically how it works.
+
 #### Create & Register a LogoutServlet
 
 * Create the Servlet
@@ -458,6 +470,7 @@ and then to navigate to a secured path ("/home"), so that you will be basically 
 
 This means that you you log out, you will be redirected to login, in order to login again.
 
+/controller/LogoutServlet.java
 ```java
 /**
  * Handles Logout-s from the Frontend App (clears session data, cookies etc.)
