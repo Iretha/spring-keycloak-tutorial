@@ -37,6 +37,24 @@ jboss.socket.binding.port-offset:100
 
 For more information, visit [the official guide](https://www.keycloak.org/docs/2.5/server_installation/topics/network/ports.html).
 
+### !!! SSH Tunnel may be needed !!!
+If your Keycloak instance is installed on a different machine (not on your local), 
+you should create a ssh tunnel first. You will be able to access the admin console from you local machine.
+
+* Linux / MacOS
+```bash
+$ ssh <user>@<KEYCLOAK_HOST_IP> -L 8180:127.0.0.1:8180
+$ Confirm with your <user_password>
+```
+i.e.
+$ ssh dev@192.168.1.122 -L 8180:127.0.0.1:81800
+
+* Windows
+You may use PuTTY or similar. 
+There are many tutorials you can follow i.e. [this one](https://www.skyverge.com/blog/how-to-set-up-an-ssh-tunnel-with-putty/)
+
+If you don't use an offset, then the port should be 8080. In my case (offset=100), the port is 8180.
+
 ### Create the Admin Account
 
 If your Keycloak instance is running, you can create an admin account.
@@ -85,24 +103,6 @@ This is the location of your demo-web-app, which we are going to create as a sec
 My demo-web-app app will be published on "http://localhost:8080"
 
 Follow the [official guide](https://www.keycloak.org/docs/latest/getting_started/index.html#creating-and-registering-the-client)
-
-### !!! SSH Tunnel may be needed !!!
-If your Keycloak instance is installed on a different machine (not the one where Spring app will run), 
-you should create a ssh tunnel between both.
-
-Go to the machine, where Spring app will run and make a tunnel the the machine, where keycloak runs.
-
-* Linux
-```bash
-$ ssh <user>@<KEYCLOAK_HOST_IP> -L 8180:127.0.0.1:8180
-$ Confirm with your <user_password>
-```
-i.e.
-$ ssh dev@192.168.1.122 -L 8180:127.0.0.1:81800
-
-* Windows
-You may use PuTTY or similar. 
-There are many tutorials you can follow i.e. [this one](https://www.skyverge.com/blog/how-to-set-up-an-ssh-tunnel-with-putty/)
 
 ## Create Spring Boot Demo Web App and secure it with Keycloak and Spring Security (Spring Boot Adapter)
 
